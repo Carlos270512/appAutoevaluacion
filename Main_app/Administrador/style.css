@@ -1,0 +1,69 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,800&display=swap");
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Asegura que los elementos estén alineados a la parte superior */
+    background-color: #e0e0e0;
+    font-family: 'Poppins', sans-serif;
+    line-height: 0.9;
+    background: linear-gradient(110deg, #333 50%, #444 50%);
+}
+
+.nav {
+    position: relative;
+    display: flex;
+    flex-direction: row; /* Asegura que los elementos estén en una fila */
+    list-style: none;
+    padding: 10px 20px;
+    margin-top: 20px; /* Si necesitas un margen superior */
+}
+
+.nav a {
+    position: relative;
+    padding: 0.6em 2em;
+    font-size: 14px; /* Tamaño de fuente más pequeño */
+    border: none;
+    outline: none;
+    color: #fff;
+    display: inline-block;
+    text-decoration: none;
+    text-shadow: 1px 1px 0 #888;
+    z-index: 3;
+}
+
+.nav .slide1,
+.nav .slide2 {
+    position: absolute;
+    display: inline-block;
+    height: 0.4em;
+    box-shadow: 1px 1px 0 #666;
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.05);
+    transform: skew(-20deg);
+    bottom: 0px;
+    height: 100%;
+}
+
+.nav .slide1 {
+    background-color: #eeeeee30;
+    z-index: 2;
+}
+
+.nav .slide2 {
+    opacity: 0;
+    background-color: transparent;
+    border: 1px solid #eeeeee70;
+    z-index: 1;
+}

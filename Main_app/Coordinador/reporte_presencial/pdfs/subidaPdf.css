@@ -1,0 +1,142 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container1 {
+    background: #646460da;
+    padding-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px #f2b440;
+    width: 80%;
+    max-width: 1200px;
+    text-align: center;
+    max-height: 100%;
+    /* Limita la altura máxima al 90% de la pantalla */
+    overflow: hidden;
+    margin-left: 7em;
+}
+
+
+.container h2 {
+    margin-bottom: 10px;
+} 
+
+h1,
+h2 {
+    margin: 0 0 20px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #914a31;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #a35e45f3;
+}
+
+.scroll {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px; /* Ajusta la altura según tus necesidades */
+    overflow-y: auto; /* Activa el scroll vertical */
+    border: 1px solid #ddd; /* Opcional: para visualizar mejor el área */
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f8f8f8;
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+li a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+li a:hover {
+    text-decoration: none;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #f2b440;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.custom-file-upload:hover {
+    background-color: #ebb654d1;
+}
+
+#nombreArchivo {
+    margin-left: 10px;
+}
+
+table .tabla {
+    background-color: #efefef;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-left: 10px
+  }
+
+  table .head {
+    background: #2c4073;
+  }
+
+  table .head td {
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  table tr td {
+    border: 1px solid gray;
+    padding: 8px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  tr:hover {
+    background: #566792;
+    color: white;
+    transition: .2s ease-in;
+  }
+
+  tr:first-child {
+    background: #2c4073;
+    color: white;
+    transition: .2s ease-in;
+  }

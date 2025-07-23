@@ -1,0 +1,248 @@
+:root {
+	--width: 260px;
+	--width-collapsed: 60px;
+	--padding: 10px;
+	--bgcolor: #1e4179;
+	--textcolor: #ffffff;
+	--hovercolor: #99421b;
+	--transition-speed: 0.3s;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #566792;
+	border-radius: 10px;
+}
+
+
+* {
+	margin: 0;
+	padding: 0;
+
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	margin-left: var(--width-collapsed);
+	background-color: #e1d0be;
+	transition: margin-left var(--transition-speed) ease;
+}
+
+.body-expanded {
+	margin-left: var(--width);
+}
+
+#inicio_admin {
+	background-color: var(--bgcolor);
+	color: white;
+	position: fixed;
+	height: 100%;
+	left: 0;
+	top: 0;
+	position: fixed;
+	background-color: var(--bgcolor);
+	color: var(--textcolor);
+	overflow: hidden;
+	transition: width var(--transition-speed) ease;
+	z-index: -10;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#inicio_admin a {
+	color: white;
+	text-decoration: none;
+}
+
+#inicio_admin #header {
+	box-sizing: border-box;
+	border-bottom: solid 1px black;
+}
+
+#inicio_admin #header #title {
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+#inicio_admin #header #title,
+#inicio_admin #header #menu-btn {
+	vertical-align: middle;
+}
+
+
+
+#inicio_admin #header #menu-btn {
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: var(--width-collapsed);
+	height: 69px;
+	background-color: transparent;
+	transition: background-color var(--transition-speed) ease;
+}
+
+#inicio_admin #header #menu-btn:hover {
+	background-color: var(--hovercolor);
+}
+
+#inicio_admin #header #menu-btn .btn-inicio {
+	background-color: var(--textcolor);
+	height: 3px;
+	width: 20px;
+	margin: 3px 0;
+	transition: all var(--transition-speed) ease;
+}
+
+#inicio_admin #profile {
+	text-align: center;
+	padding: var(--padding) 0;
+	border-bottom: 1px solid black;
+}
+
+#inicio_admin #profile #photo {
+	box-sizing: border-box;
+	padding: var(--padding);
+	margin: 0 auto;
+}
+
+#inicio_admin #photo img {
+	border-radius: 50%;
+	width: 38%;
+	margin: var(--padding) auto;
+}
+
+#inicio_admin #profile #name {
+	font-size: 18px;
+	padding: var(--padding) 0;
+	overflow: hidden;
+}
+
+#inicio_admin #menu-items {
+	padding: 10px 0;
+}
+
+#inicio_admin #menu-items .item {
+	width: var(--width);
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+#inicio_admin #menu-items .item .title {
+	font-size: 14px;
+	vertical-align: middle;
+	overflow: hidden;
+	display: inline-block;
+}
+
+#inicio_admin #menu-items .item .icon {
+	font-size: 25px;
+	vertical-align: middle;
+	margin-left: 8px;
+	overflow: hidden;
+	display: inline-block;
+}
+
+#inicio_admin #menu-items .item a {
+	display: block;
+}
+
+#inicio_admin #menu-items .item a:hover {
+	background-color: var(--hovercolor);
+}
+
+#inicio_admin #menu-items .item .icon {
+	box-sizing: border-box;
+	padding: var(--padding);
+	width: var(--width-collapsed);
+	font-size: 22px;
+}
+
+#inicio_admin #menu-items .item .icon i {
+	width: 100%;
+}
+
+#inicio_admin #menu-items .item .title {
+	font-size: 14px;
+	transition: max-width var(--transition-speed) ease, opacity var(--transition-speed) ease;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+
+#inicio_admin #menu-items .item.separator {
+	height: 1px;
+	border-bottom: solid 1px black;
+	margin: 8px 0;
+}
+
+
+#inicio_admin #menu-items .item ul li ul li a {
+	background-color: #566792;
+}
+
+#inicio_admin #menu-items .item ul li ul li ul li a {
+	background-color: #7F8EB5;
+}
+
+#inicio_admin #menu-items .item ul ul,
+#inicio_admin #menu-items .item ul ul ul {
+	display: none;
+}
+
+.menu-expanded {
+	width: var(--width);
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.menu-expanded #header #title {
+	display: inline-block;
+	width: calc(100% - 100px);
+	margin-right: -5px;
+	padding: var(--padding);
+}
+
+.menu-expanded #header #title span {
+	width: calc(var(--width) - var(--width-collapsed) - 5px);
+	overflow: hidden;
+}
+
+.menu-expanded #profile #photo {
+	width: 200px;
+}
+
+.menu-expanded #profile #name {
+	width: 100%;
+}
+
+.menu-collapsed {
+	width: var(--width-collapsed);
+}
+
+.menu-collapsed #header #title {
+	width: 0;
+	height: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.menu-collapsed #profile #name {
+	display: none;
+}
+
+.menu-collapsed .item {
+	width: 100px;
+}
+
+.menu-collapsed #menu-items .item .title {
+	max-width: 0;
+	opacity: 0;
+}
+

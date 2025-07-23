@@ -1,0 +1,94 @@
+/*Eliminamos los margenes y paddings que agrega el navegador por defecto*/
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body,
+td,
+th {
+  font-size: 12px;
+}
+
+/*Agregamos margenes inferiores a los parrafos*/
+p {
+  margin-bottom: 20px;
+}
+
+header {
+  background: rgba(0, 0, 0, 0.9);
+  width: 100%;
+  position: fixed;
+  z-index: 100;
+}
+
+.contenido {
+  margin-top: 1px;
+  margin-left: 1px;
+}
+
+.wrapper {
+  width: 100%;
+  margin-top: 6em;
+}
+
+.button {
+  width: 140px;
+  height: 45px;
+  background: linear-gradient(135deg, #914a31, #6d3726);
+  /* Gradiente moderno */
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  /* Animación suave */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Sombra sutil */
+}
+
+.button:hover {
+  background: linear-gradient(135deg, #6d3726, #914a31);
+  /* Invertir colores del gradiente */
+  transform: translateY(-2px);
+  /* Efecto dinámico de desplazamiento */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  /* Sombra más pronunciada */
+}
+
+.icon3 {
+  color: #fff;
+  font-size: 16px;
+  vertical-align: middle;
+  margin-right: 5px;
+  /* Espaciado entre el ícono y el texto */
+  transition: color 0.3s ease;
+  /* Transición para cambios dinámicos */
+}
+
+.button:hover .icon3 {
+  color: #f9eae3;
+  /* Cambio sutil de color del ícono al pasar el mouse */
+}
+
+.verticalText {
+  writing-mode: vertical-lr;
+  transform: rotate(540deg);
+}
+
+textarea {
+  text-align: left;
+  color: black;
+  font-size: 15px;
+  vertical-align: middle;
+  border-radius: 5px;
+  border: solid 1px #f2b440;
+  height: 26px;
+  resize: both;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+

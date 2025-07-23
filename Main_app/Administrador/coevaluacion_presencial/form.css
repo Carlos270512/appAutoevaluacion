@@ -1,0 +1,11 @@
+.welcome {
+    width: 100%;
+    height: 2450px;
+    max-width: 1300px;
+    background: rgba(200, 197, 197, 0.6);
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 2em;
+    margin-left: 7.8em;
+}
+

@@ -1,0 +1,59 @@
+/* Botones base */
+.botones {
+    display: flex; /* Usar flexbox para alinear el contenido */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    width: 40px; /* Tamaño uniforme del botón */
+    height: 40px;
+    border: none;
+    border-radius: 50%; /* Forma circular */
+    font-size: 18px; /* Tamaño del icono */
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  /* Estilos para cada tipo de botón */
+  .botones-pdf {
+    background-color: #d9534f; /* Rojo */
+    color: white;
+  }
+  
+  .botones-view {
+    background-color: #5bc0de; /* Azul */
+    color: white;
+  }
+  
+  .botones-edit {
+    background-color: #5cb85c; /* Verde */
+    color: white;
+  }
+  
+  .botones-delete {
+    background-color: #f0ad4e; /* Naranja */
+    color: white;
+  }
+
+  .botones-pdfs {
+    background-color: #e333d8; /* Naranja */
+    color: white;
+  }
+  
+  /* Hover Effects */
+  .botones:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  
+  /* Iconos */
+  .botones i {
+    vertical-align: middle; /* Centrado vertical en caso de desajustes */
+  }
+  
+  /* Opcional: Centrar el contenido de las celdas */
+  td div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

@@ -1,0 +1,26 @@
+/* Contenedor para personalizar el input file */
+.file-label {
+    display: inline-block; /* Mostrar como un botón */
+    padding: 5px 10px; /* Espaciado interno */
+    background-color: #ff3b3b; /* Azul */
+    color: white; /* Texto blanco */
+    border-radius: 3px; /* Bordes redondeados */
+    font-size: 14px; /* Tamaño de la fuente */
+    cursor: pointer; /* Cambiar cursor a "manito" */
+    transition: background-color 0.3s ease; /* Transición suave */
+    border: 1px solid #ff3b3b; /* Borde azul */
+    margin-right: 10px; /* Espaciado respecto al botón */
+}
+
+/* Hover: Efecto al pasar el ratón */
+.file-label:hover {
+    background-color: #fff; /* Azul más oscuro */
+    color: red;
+}
+
+/* Ocultar el input real */
+input[type="file"] {
+    display: none;
+}
+
+
