@@ -19,11 +19,47 @@ try {
   die('Error de conexión: ' . htmlspecialchars($e->getMessage()));
 }
 
+// Utilidades de rol
+function setAsCoordinator(PDO $db, int $idLogin): void {
+  $upd = $db->prepare('UPDATE login SET tipo = "Coordinador" WHERE id = :id');
+  $upd->execute([':id' => $idLogin]);
+}
+function maybeSetAsTeacher(PDO $db, int $idLogin): void {
+  // Si el usuario no figura como coordinador en ninguna carrera, volver a Docente
+  $q = $db->prepare('SELECT COUNT(*) AS c FROM coordinadores WHERE id_login = :id');
+  $q->execute([':id' => $idLogin]);
+  $c = (int)$q->fetchColumn();
+  if ($c === 0) {
+    $upd = $db->prepare('UPDATE login SET tipo = "Docente" WHERE id = :id AND tipo <> "Administrador"');
+    $upd->execute([':id' => $idLogin]);
+  }
+}
+
 // Eliminar
 if (isset($_GET['delete'])) {
   $id = (int) $_GET['delete'];
-  $stmt = $conexion->prepare('DELETE FROM coordinadores WHERE id = :id');
-  $stmt->execute([':id' => $id]);
+
+  try {
+    $conexion->beginTransaction();
+
+    // Obtener el id_login antes de borrar para ajustar su tipo si queda sin coordinaciones
+    $prev = $conexion->prepare('SELECT id_login FROM coordinadores WHERE id = :id');
+    $prev->execute([':id' => $id]);
+    $oldLogin = (int)($prev->fetch()['id_login'] ?? 0);
+
+    $stmt = $conexion->prepare('DELETE FROM coordinadores WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+
+    if ($oldLogin) {
+      maybeSetAsTeacher($conexion, $oldLogin);
+    }
+
+    $conexion->commit();
+  } catch (Throwable $t) {
+    if ($conexion->inTransaction()) $conexion->rollBack();
+    die('Error eliminando: ' . htmlspecialchars($t->getMessage()));
+  }
+
   $mensaje = 'Registro eliminado correctamente.';
   header('Location: gestionCoordinadores.php?ok=' . urlencode($mensaje));
   exit;
@@ -31,16 +67,16 @@ if (isset($_GET['delete'])) {
 
 // Crear / Actualizar
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $action    = $_POST['action'] ?? 'create';
-  $id        = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-  $id_login  = isset($_POST['id_login']) ? (int) $_POST['id_login'] : 0;
-  $id_carrera= isset($_POST['id_carrera']) ? (int) $_POST['id_carrera'] : 0;
+  $action     = $_POST['action'] ?? 'create';
+  $id         = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+  $id_login   = isset($_POST['id_login']) ? (int) $_POST['id_login'] : 0;
+  $id_carrera = isset($_POST['id_carrera']) ? (int) $_POST['id_carrera'] : 0;
 
   if (!$id_login || !$id_carrera) {
     $error = '<h4><b>X Error, seleccione docente y carrera</b></h4>';
   } else {
     // Validar existencia de claves foráneas
-    $existeDoc = $conexion->prepare('SELECT id FROM login WHERE id = :id AND tipo IN ("Docente","Coordinador")');
+    $existeDoc = $conexion->prepare('SELECT id FROM login WHERE id = :id AND tipo IN ("Docente","Coordinador","Administrador")');
     $existeDoc->execute([':id' => $id_login]);
     $existeCar = $conexion->prepare('SELECT id FROM carreras WHERE id = :id');
     $existeCar->execute([':id' => $id_carrera]);
@@ -51,30 +87,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if ($error === '') {
-    if ($action === 'update' && $id > 0) {
-      $upd = $conexion->prepare('UPDATE coordinadores SET id_login = :id_login, id_carrera = :id_carrera WHERE id = :id');
-      $upd->execute([':id_login'=>$id_login, ':id_carrera'=>$id_carrera, ':id'=>$id]);
-      $mensaje = '<h4 style="color: green;"><b>✓ Coordinador actualizado</b></h4>';
-    } else {
-      // Si ya existe coordinador para esa carrera, reasignar (cambio de id_login)
-      $ya = $conexion->prepare('SELECT id FROM coordinadores WHERE id_carrera = :id_carrera LIMIT 1');
-      $ya->execute([':id_carrera'=>$id_carrera]);
-      $row = $ya->fetch();
-      if ($row) {
-        $upd = $conexion->prepare('UPDATE coordinadores SET id_login = :id_login WHERE id = :id');
-        $upd->execute([':id_login'=>$id_login, ':id'=>$row['id']]);
-        $mensaje = '<h4 style="color: green;"><b>✓ Coordinador reasignado a la carrera</b></h4>';
+    try {
+      $conexion->beginTransaction();
+
+      if ($action === 'update' && $id > 0) {
+        // Obtener el coordinador previo del registro
+        $prev = $conexion->prepare('SELECT id_login FROM coordinadores WHERE id = :id');
+        $prev->execute([':id' => $id]);
+        $oldLogin = (int)($prev->fetch()['id_login'] ?? 0);
+
+        // Actualizar
+        $upd = $conexion->prepare('UPDATE coordinadores SET id_login = :id_login, id_carrera = :id_carrera WHERE id = :id');
+        $upd->execute([':id_login'=>$id_login, ':id_carrera'=>$id_carrera, ':id'=>$id]);
+
+        // Rol nuevo coordinador
+        setAsCoordinator($conexion, $id_login);
+
+        // Si cambió el usuario, tal vez bajar al anterior a Docente
+        if ($oldLogin && $oldLogin !== $id_login) {
+          maybeSetAsTeacher($conexion, $oldLogin);
+        }
+
+        $mensaje = '<h4 style="color: green;"><b>✓ Coordinador actualizado</b></h4>';
       } else {
-        $ins = $conexion->prepare('INSERT INTO coordinadores (id_login, id_carrera) VALUES (:id_login, :id_carrera)');
-        $ins->execute([':id_login'=>$id_login, ':id_carrera'=>$id_carrera]);
-        $mensaje = '<h4 style="color: green;"><b>✓ Coordinador registrado</b></h4>';
+        // Crear o reasignar por carrera (un coordinador por carrera)
+        $ya = $conexion->prepare('SELECT id, id_login FROM coordinadores WHERE id_carrera = :id_carrera LIMIT 1');
+        $ya->execute([':id_carrera'=>$id_carrera]);
+        $row = $ya->fetch();
+
+        if ($row) {
+          $oldLogin = (int)$row['id_login'];
+          // Reasignar coordinador de la carrera
+          $upd = $conexion->prepare('UPDATE coordinadores SET id_login = :id_login WHERE id = :id');
+          $upd->execute([':id_login'=>$id_login, ':id'=>$row['id']]);
+
+          // Elevar nuevo
+          setAsCoordinator($conexion, $id_login);
+          // Bajar antiguo si ya no coordina ninguna
+          if ($oldLogin && $oldLogin !== $id_login) {
+            maybeSetAsTeacher($conexion, $oldLogin);
+          }
+
+          $mensaje = '<h4 style="color: green;"><b>✓ Coordinador reasignado a la carrera</b></h4>';
+        } else {
+          // Insertar nuevo
+          $ins = $conexion->prepare('INSERT INTO coordinadores (id_login, id_carrera) VALUES (:id_login, :id_carrera)');
+          $ins->execute([':id_login'=>$id_login, ':id_carrera'=>$id_carrera]);
+
+          // Elevar nuevo
+          setAsCoordinator($conexion, $id_login);
+
+          $mensaje = '<h4 style="color: green;"><b>✓ Coordinador registrado</b></h4>';
+        }
       }
+
+      $conexion->commit();
+    } catch (Throwable $t) {
+      if ($conexion->inTransaction()) $conexion->rollBack();
+      $error = '<h4><b>X Error al guardar: ' . htmlspecialchars($t->getMessage()) . '</b></h4>';
     }
   }
 }
 
 // Cargar datos para selects y tabla
-$docentes = $conexion->query('SELECT id, nombre FROM login WHERE tipo IN ("Docente","Coordinador") ORDER BY nombre')->fetchAll();
+$docentes = $conexion->query('SELECT id, nombre, tipo FROM login WHERE tipo IN ("Docente","Coordinador") ORDER BY nombre')->fetchAll();
 $carreras = $conexion->query('SELECT id, codigo, nombre FROM carreras ORDER BY nombre')->fetchAll();
 $lista = $conexion->query('
   SELECT c.id, l.nombre AS docente, ca.nombre AS carrera, ca.codigo
@@ -113,7 +189,6 @@ if (isset($_GET['ok'])) {
   <title>Gestión de Coordinadores</title>
 
   <style>
-    /* Ajustes simples para mantener el estilo */
     .container-page { max-width: 1080px; margin: 100px auto 40px; padding: 0 16px; }
     .card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
     .card h2 { margin: 0 0 10px; }
@@ -162,29 +237,19 @@ if (isset($_GET['ok'])) {
           <li>
             <div class="dropdown" id="dropdown">
               <div class="dropdown__profile"><div class="dropdown__names"><i class="ph ph-identification-badge"></i><a class="nav__link">Registrar</a></div></div>
-              <div class="dropdown__list" style="margin-left: -2em;">
-                <a href="register.php" class="dropdown__link"><i class="ph ph-user-circle-plus"></i><span>Usuario</span></a>
-                <a href="register3.php" class="dropdown__link"><i class="ph ph-bank"></i><span>Carrera</span></a>
-                <a href="gestionCoordinadores.php" class="dropdown__link"><i class="ph ph-bank"></i><span>Gestion Coordinadores</span></a>
-              </div>
+              <div class="dropdown__list" style="margin-left: -2em;"></div>
             </div>
           </li>
           <li>
             <div class="dropdown" id="dropdown">
               <div class="dropdown__profile"><div class="dropdown__names"><i class="icon ph-bold ph-pencil-simple-line"></i><a class="nav__link">Editar</a></div></div>
-              <div class="dropdown__list" style="margin-left: -4em;">
-                <a href="coordinadores/index.php" class="dropdown__link"><i class="ph ph-suitcase-simple"></i><span>Coordinadores</span></a>
-                <a href="docentes/index.php" class="dropdown__link"><i class="ph ph-graduation-cap"></i><span>Docentes</span></a>
-                <a href="carreras/index.php" class="dropdown__link"><i class="ph ph-bank"></i><span>Carreras</span></a>
-              </div>
+              <div class="dropdown__list" style="margin-left: -4em;"></div>
             </div>
           </li>
           <li>
             <div class="dropdown" id="dropdown">
               <div class="dropdown__profile"><div class="dropdown__names"><i class="icon ph-bold ph-table"></i><a class="nav__link">Instrumentos</a></div></div>
-              <div class="dropdown__list" style="margin-left: -2em;">
-                <a href="coevaluacion_presencial/index2.php" class="dropdown__link"><i class="ph ph-desktop"></i><span>Formulario</span></a>
-              </div>
+              <div class="dropdown__list" style="margin-left: -2em;"></div>
             </div>
           </li>
           <li><i class="icon ph-bold ph-file"></i><a href="reporte_presencial/convertidor.php" class="nav__link">Reporte General</a></li>
@@ -269,8 +334,7 @@ if (isset($_GET['ok'])) {
                 <a class="btn btn-secondary" href="?edit=<?php echo (int)$r['id']; ?>">
                   <i class="ph ph-pencil-simple"></i> Editar
                 </a>
-                <a class="btn btn-danger" href="?delete=<?php echo (int)$r['id']; ?>"
-                   onclick="return confirm('¿Eliminar este registro?');">
+                <a class="btn btn-danger" href="?delete=<?php echo (int)$r['id']; ?>" onclick="return confirm('¿Eliminar este registro?');">
                   <i class="ph ph-trash"></i> Eliminar
                 </a>
               </td>
