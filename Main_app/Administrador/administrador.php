@@ -96,6 +96,11 @@ $tipo = $_SESSION['usu']['tipo'];
                   <i class="ph ph-bank"></i>
                   <span>Carrera</span>
                 </a>
+
+                <a href="gestionCoordinadores.php" class="dropdown__link">
+                  <i class="ph ph-bank"></i>
+                  <span>Gestion Coordinadores</span>
+                </a>
               </div>
             </div>
           </li>
